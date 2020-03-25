@@ -161,19 +161,7 @@ function getAllTodosFromFile() {
 }
 
 function xxxxx(allTodos) {
-  let allTodoCheckBox = allTodos.map((todo) => {
-    if (todo.status === 'undo') {
-      return {
-        name: `❎ ${todo.title}`,
-        value: todo.title,
-      };
-    } else {
-      return {
-        name: `✅ ${todo.title}`,
-        value: todo.title,
-      };
-    }
-  });
+  let allTodoCheckBox = renderTodoText(allTodos);
   inquirer
     .prompt([
       {
@@ -207,16 +195,38 @@ function xxxxx(allTodos) {
         },
       ]).then((options) => {
         const changeTitleOrStatus = options.changeTitleOrStatus;
-        if (changeTitleOrStatus === 'changeTitle') {
-          // 弹出 input 供用户修改任务标题
-          editTodoTitle(userSelectTitle);
-        } else if (changeTitleOrStatus === 'changeStatus') {
-          // 切换任务完成状态
-          toggleTodoStatus(userSelectTitle);
-        } else if (changeTitleOrStatus === 'deleteTodo') {
-          deleteTodo(userSelectTitle);
-        }
+        operateSelectTodo(changeTitleOrStatus, userSelectTitle);
       });
     });
+}
+
+function operateSelectTodo(changeTitleOrStatus, userSelectTitle){
+  switch (changeTitleOrStatus) {
+    case 'changeTitle':
+      editTodoTitle(userSelectTitle);
+      break;
+    case 'changeStatus':
+      toggleTodoStatus(userSelectTitle);
+      break;
+    case 'deleteTodo':
+      deleteTodo(userSelectTitle);
+      break;
+  }
+}
+
+function renderTodoText(allTodos){
+  return allTodos.map((todo) => {
+    if (todo.status === 'undo') {
+      return {
+        name: `❎ ${todo.title}`,
+        value: todo.title,
+      };
+    } else {
+      return {
+        name: `✅ ${todo.title}`,
+        value: todo.title,
+      };
+    }
+  });
 }
 
