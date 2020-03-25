@@ -24,36 +24,33 @@ inquirer
   ])
   .then(async userSelect => {
     const userWantAction = userSelect.userWant;
-    console.log(userWantAction);
     switch (userWantAction) {
       case 'showAll':
         await showAll();
         break;
       case 'addTodo':
-        console.log(1);
         addTodo();
         break;
     }
   });
 
-async function showAll(){
-  try{
+async function showAll() {
+  try {
     const allTodos = await getAllTodosFromFile();
-    console.log('allTodos', allTodos);
     xxxxx(allTodos);
     return allTodos;
-  }catch (e) {
+  } catch (e) {
     console.log(e);
   }
 }
 
-function addTodo(){
+function addTodo() {
   inquirer.prompt({
     type: 'input',
     name: 'addTodoTitle',
-    message: "请输入 todo 名称",
+    message: '请输入 todo 名称',
     validate: async function (value) {
-      try{
+      try {
         const allTodos = await getAllTodosFromFile();
         allTodos.push({
           title: value,
@@ -61,54 +58,54 @@ function addTodo(){
         });
         fs.writeFile(todoFilePath, JSON.stringify(allTodos), (err) => {
           if (err) {
-            console.log(err)
+            console.log(err);
           }
           console.log('新增 todo 成功');
-        })
-      }catch (e) {
+        });
+      } catch (e) {
         console.log(e);
       }
       return true;
     }
-  })
+  });
 }
 
-function editTodoTitle(oldTodoTitle){
+function editTodoTitle(oldTodoTitle) {
   inquirer.prompt({
     type: 'input',
     name: 'editTodoTitle',
-    message: "请修改任务名称",
+    message: '请修改任务名称',
     validate: async function (newTodoTitle) {
-      try{
+      try {
         const allTodos = await getAllTodosFromFile();
         const editTodo = allTodos.find(todo => todo.title === oldTodoTitle);
         editTodo.title = newTodoTitle;
         fs.writeFile(todoFilePath, JSON.stringify(allTodos), (err) => {
           if (err) {
-            console.log(err)
+            console.log(err);
           }
           console.log(`成功将「${oldTodoTitle}」修改成「${newTodoTitle}」`);
           showAll();
-        })
-      }catch (e) {
+        });
+      } catch (e) {
         console.log(e);
       }
       return true;
     }
-  })
+  });
 }
 
-async function toggleTodoStatus(userSelectTitle){
-  try{
+async function toggleTodoStatus(userSelectTitle) {
+  try {
     const allTodos = await getAllTodosFromFile();
     let resultLog;
     const editTodo = allTodos.find(todo => todo.title === userSelectTitle);
-    if(editTodo.status === 'undo'){
+    if (editTodo.status === 'undo') {
       editTodo.status = 'done';
-      resultLog = "完成"
+      resultLog = '完成';
     } else {
       editTodo.status = 'undo';
-      resultLog = '未完成'
+      resultLog = '未完成';
     }
     fs.writeFile(todoFilePath, JSON.stringify(allTodos), (err) => {
       if (err) {
@@ -117,14 +114,14 @@ async function toggleTodoStatus(userSelectTitle){
       }
       console.log(`成功将「${userSelectTitle}」设置为${resultLog}`);
       showAll();
-    })
-  }catch (e) {
+    });
+  } catch (e) {
     console.log(e);
   }
 }
 
-async function deleteTodo(userSelectTitle){
-  try{
+async function deleteTodo(userSelectTitle) {
+  try {
     const allTodos = await getAllTodosFromFile();
     const wantToDelete = allTodos.find(todo => todo.title === userSelectTitle);
     const deleteIndex = allTodos.indexOf(wantToDelete);
@@ -136,24 +133,26 @@ async function deleteTodo(userSelectTitle){
         console.log(err);
         return;
       }
-      console.log(`成功将「${userSelectTitle}」删除`)
+      console.log(`成功将「${userSelectTitle}」删除`);
       showAll();
-    })
-  }catch (e) {
+    });
+  } catch (e) {
     console.log(e);
   }
 }
 
-function getAllTodosFromFile(){
-  return new Promise((resolve, reject)=>{
+function getAllTodosFromFile() {
+  return new Promise((resolve, reject) => {
     fs.readFile(todoFilePath, {
       flag: 'a+'
-    }, (err, data)=>{
-      if(err){reject(err);}
+    }, (err, data) => {
+      if (err) {
+        reject(err);
+      }
       let list;
-      try{
+      try {
         list = JSON.parse(data);
-      }catch(e){
+      } catch (e) {
         list = [];
       }
       resolve(list);
@@ -161,18 +160,18 @@ function getAllTodosFromFile(){
   });
 }
 
-function xxxxx(allTodos){
-  let allTodoCheckBox = allTodos.map((todo)=>{
-    if(todo.status === 'undo'){
+function xxxxx(allTodos) {
+  let allTodoCheckBox = allTodos.map((todo) => {
+    if (todo.status === 'undo') {
       return {
         name: `❎ ${todo.title}`,
         value: todo.title,
-      }
+      };
     } else {
       return {
         name: `✅ ${todo.title}`,
         value: todo.title,
-      }
+      };
     }
   });
   inquirer
@@ -206,18 +205,18 @@ function xxxxx(allTodos){
             }
           ]
         },
-      ]).then((options)=>{
+      ]).then((options) => {
         const changeTitleOrStatus = options.changeTitleOrStatus;
-        if(changeTitleOrStatus === 'changeTitle'){
+        if (changeTitleOrStatus === 'changeTitle') {
           // 弹出 input 供用户修改任务标题
           editTodoTitle(userSelectTitle);
-        } else if(changeTitleOrStatus === 'changeStatus'){
+        } else if (changeTitleOrStatus === 'changeStatus') {
           // 切换任务完成状态
           toggleTodoStatus(userSelectTitle);
-        } else if (changeTitleOrStatus === 'deleteTodo'){
+        } else if (changeTitleOrStatus === 'deleteTodo') {
           deleteTodo(userSelectTitle);
         }
-      })
+      });
     });
 }
 
